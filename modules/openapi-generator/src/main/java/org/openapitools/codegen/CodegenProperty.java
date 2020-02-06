@@ -67,6 +67,7 @@ public class CodegenProperty implements Cloneable {
     public CodegenProperty items;
     public CodegenProperty mostInnerItems;
     public List<Map<String, String>> oneOf;
+    public boolean isVariant;
     public Map<String, Object> vendorExtensions = new HashMap<String, Object>();
     public boolean hasValidation; // true if pattern, maximum, etc are set (only used in the mustache template)
     public boolean isInherited;
@@ -349,6 +350,7 @@ public class CodegenProperty implements Cloneable {
 
     public void setOneOf(List<Map<String, String>> oneOf) {
         this.oneOf = oneOf;
+        this.isVariant = ((oneOf != null) && !oneOf.isEmpty());
     }
 
     public Map<String, Object> getVendorExtensions() {
@@ -466,6 +468,7 @@ public class CodegenProperty implements Cloneable {
             setter,
             unescapedDescription,
             oneOf,
+            isVariant,
             vendorExtensions,
             hasValidation,
             isString,
@@ -550,6 +553,7 @@ public class CodegenProperty implements Cloneable {
             Objects.equals(_enum, other._enum) &&
             Objects.equals(allowableValues, other.allowableValues) &&
             Objects.equals(oneOf, other.oneOf) &&
+            Objects.equals(isVariant, other.isVariant) &&
             Objects.equals(vendorExtensions, other.vendorExtensions) &&
             Objects.equals(hasValidation, other.hasValidation) &&
             Objects.equals(isString, other.isString) &&
@@ -684,6 +688,7 @@ public class CodegenProperty implements Cloneable {
                 ", items=" + items +
                 ", mostInnerItems=" + mostInnerItems +
                 ", oneOf=" + oneOf +
+                ", isVariant=" + isVariant +
                 ", vendorExtensions=" + vendorExtensions +
                 ", hasValidation=" + hasValidation +
                 ", isInherited=" + isInherited +
