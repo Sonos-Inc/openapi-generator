@@ -2712,8 +2712,24 @@ public class DefaultCodegen implements CodegenConfig {
             setNonArrayMapProperty(property, type);
             Schema refOrCurrent = ModelUtils.getReferencedSchema(this.openAPI, p);
             property.isModel = (ModelUtils.isComposedSchema(refOrCurrent) || ModelUtils.isObjectSchema(refOrCurrent)) && ModelUtils.isModel(refOrCurrent);
+
             if (ModelUtils.isAnyTypeSchema(p)) {
                 property.isAnyType = true;
+            }
+
+            // This adds 'oneOf' properties to the codegen property so that the oneOf data is
+            // available from mustache.
+            if (ModelUtils.isComposedSchema(refOrCurrent)) {
+                ComposedSchema cs = (ComposedSchema)refOrCurrent;
+                if (cs.getOneOf() != null) {
+                    List<Map<String, String>> myOneOf = new ArrayList<Map<String, String>>();
+                    for (Schema s : cs.getOneOf()) {
+                        Map<String, String> myMap = new HashMap<String, String>();
+                        myMap.put("innerDataType", getSchemaType(s));
+                        myOneOf.add(myMap);
+                    }
+                    property.setOneOf(myOneOf);
+                }
             }
         }
 
