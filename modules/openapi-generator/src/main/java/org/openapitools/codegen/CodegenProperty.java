@@ -66,6 +66,8 @@ public class CodegenProperty implements Cloneable {
     public Map<String, Object> allowableValues;
     public CodegenProperty items;
     public CodegenProperty mostInnerItems;
+    public List<Map<String, String>> oneOf;
+    public boolean isVariant;
     public Map<String, Object> vendorExtensions = new HashMap<String, Object>();
     public boolean hasValidation; // true if pattern, maximum, etc are set (only used in the mustache template)
     public boolean isInherited;
@@ -342,6 +344,15 @@ public class CodegenProperty implements Cloneable {
         this.items = items;
     }
 
+    public List<Map<String, String>> getOneOf() {
+        return oneOf;
+    }
+
+    public void setOneOf(List<Map<String, String>> oneOf) {
+        this.oneOf = oneOf;
+        this.isVariant = ((oneOf != null) && !oneOf.isEmpty());
+    }
+
     public Map<String, Object> getVendorExtensions() {
         return vendorExtensions;
     }
@@ -456,6 +467,8 @@ public class CodegenProperty implements Cloneable {
             secondaryParam,
             setter,
             unescapedDescription,
+            oneOf,
+            isVariant,
             vendorExtensions,
             hasValidation,
             isString,
@@ -539,6 +552,8 @@ public class CodegenProperty implements Cloneable {
             Objects.equals(isSelfReference, other.isSelfReference) &&
             Objects.equals(_enum, other._enum) &&
             Objects.equals(allowableValues, other.allowableValues) &&
+            Objects.equals(oneOf, other.oneOf) &&
+            Objects.equals(isVariant, other.isVariant) &&
             Objects.equals(vendorExtensions, other.vendorExtensions) &&
             Objects.equals(hasValidation, other.hasValidation) &&
             Objects.equals(isString, other.isString) &&
@@ -589,6 +604,13 @@ public class CodegenProperty implements Cloneable {
             }
             if (this.mostInnerItems != null) {
                 cp.mostInnerItems = this.mostInnerItems;
+            }
+            if (this.oneOf != null) {
+                cp.oneOf = new ArrayList<Map<String, String>>();
+                for (Map<String, String> e : this.oneOf) {
+                    Map<String, String> myE = new HashMap<String, String>(e);
+                    cp.oneOf.add(myE);
+                }
             }
             if (this.vendorExtensions != null) {
                 cp.vendorExtensions = new HashMap<String, Object>(this.vendorExtensions);
@@ -665,6 +687,8 @@ public class CodegenProperty implements Cloneable {
                 ", allowableValues=" + allowableValues +
                 ", items=" + items +
                 ", mostInnerItems=" + mostInnerItems +
+                ", oneOf=" + oneOf +
+                ", isVariant=" + isVariant +
                 ", vendorExtensions=" + vendorExtensions +
                 ", hasValidation=" + hasValidation +
                 ", isInherited=" + isInherited +

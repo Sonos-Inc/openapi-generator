@@ -186,6 +186,16 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
     public String toModelImport(String name) {
         if (importMapping.containsKey(name)) {
             return importMapping.get(name);
+        } else if (name.startsWith("boost::variant<")) {
+            String imports = "#include \"boost/variant.hpp\"\n";
+
+            int length = name.length();
+            String[] split = name.substring(15, length - 1).split(",");
+            for (String inner : split) {
+                imports = imports + toModelImport(inner) + "\n";
+            }
+
+            return imports;
         } else {
             return "#include \"" + name + ".h\"";
         }
@@ -193,8 +203,6 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
 
     @Override
     public CodegenModel fromModel(String name, Schema model) {
-        name = cleanModelName(name);
-
         CodegenModel codegenModel = super.fromModel(name, model);
         Set<String> oldImports = codegenModel.imports;
         codegenModel.imports = new HashSet<String>();
@@ -204,23 +212,13 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
                 codegenModel.imports.add(newImp);
             }
         }
+
         return codegenModel;
-    }
-
-    private String cleanModelName(String name) {
-        // Some model names parsed to Namespace_ModelName, this removes the '_'.
-        String[] split = name.split("_");
-
-        String output = name;
-        if (split.length > 1) {
-            output = split[0] + split[1];
-        }
-        return output;
     }
 
     @Override
     public String toModelFilename(String name) {
-        return toModelName(cleanModelName(name));
+        return toModelName(name);
     }
 
     @Override
@@ -422,10 +420,19 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
         String type = null;
         if (typeMapping.containsKey(openAPIType)) {
             type = typeMapping.get(openAPIType);
-            if (languageSpecificPrimitives.contains(type))
-                return toModelName(type);
-        } else
+        } else if (openAPIType.startsWith("oneOf<")) {
+            type = "boost::variant<";
+            int length = openAPIType.length();
+            String[] split = openAPIType.substring(6, length - 1).split(",");
+            for (String inner : split) {
+                type = type + toModelName(inner) + ",";
+            }
+            type = type.substring(0, type.length() - 1);
+            type = type + ">";
+            return type;
+        } else {
             type = openAPIType;
+        }
         return toModelName(type);
     }
 }
