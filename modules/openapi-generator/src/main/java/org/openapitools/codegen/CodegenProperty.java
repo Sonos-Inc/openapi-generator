@@ -154,6 +154,7 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
     public Map<String, Object> allowableValues;
     public CodegenProperty items;
     public CodegenProperty mostInnerItems;
+    public List<Map<String, String>> oneOf;
     public Map<String, Object> vendorExtensions = new HashMap<String, Object>();
     public boolean hasValidation; // true if pattern, maximum, etc are set (only used in the mustache template)
     public boolean isInherited;
@@ -452,6 +453,14 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
         this.items = items;
     }
 
+    public List<Map<String, String>> getOneOf() {
+        return oneOf;
+    }
+
+    public void setOneOf(List<Map<String, String>> oneOf) {
+        this.oneOf = oneOf;
+    }
+
     public Map<String, Object> getVendorExtensions() {
         return vendorExtensions;
     }
@@ -539,6 +548,13 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
             }
             if (this.mostInnerItems != null) {
                 cp.mostInnerItems = this.mostInnerItems;
+            }
+            if (this.oneOf != null) {
+                cp.oneOf = new ArrayList<Map<String, String>>();
+                for (Map<String, String> e : this.oneOf) {
+                    Map<String, String> myE = new HashMap<String, String>(e);
+                    cp.oneOf.add(myE);
+                }
             }
             if (this.vendorExtensions != null) {
                 cp.vendorExtensions = new HashMap<String, Object>(this.vendorExtensions);
@@ -673,6 +689,7 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
         sb.append(", xmlName='").append(xmlName).append('\'');
         sb.append(", xmlNamespace='").append(xmlNamespace).append('\'');
         sb.append(", isXmlWrapped=").append(isXmlWrapped);
+        sb.append(", oneOf=").append(oneOf);
         sb.append('}');
         return sb.toString();
     }
@@ -747,6 +764,7 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
                 Objects.equals(minimum, that.minimum) &&
                 Objects.equals(maximum, that.maximum) &&
                 Objects.equals(_enum, that._enum) &&
+                Objects.equals(oneOf, that.oneOf) &&
                 Objects.equals(allowableValues, that.allowableValues) &&
                 Objects.equals(items, that.items) &&
                 Objects.equals(mostInnerItems, that.mostInnerItems) &&
@@ -765,7 +783,6 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
 
     @Override
     public int hashCode() {
-
         return Objects.hash(openApiType, baseName, complexType, getter, setter, description,
                 dataType, datatypeWithEnum, dataFormat, name, min, max, defaultValue,
                 defaultValueWithParam, baseType, containerType, title, unescapedDescription,
@@ -778,6 +795,7 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
                 isSelfReference, isCircularReference, _enum, allowableValues, items, mostInnerItems,
                 vendorExtensions, hasValidation, isInherited, discriminatorValue, nameInCamelCase,
                 nameInSnakeCase, enumName, maxItems, minItems, isXmlAttribute, xmlPrefix, xmlName,
+                oneOf,
                 xmlNamespace, isXmlWrapped);
     }
 }
