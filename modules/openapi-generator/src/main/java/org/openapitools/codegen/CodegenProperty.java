@@ -155,6 +155,7 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
     public CodegenProperty items;
     public CodegenProperty mostInnerItems;
     public List<Map<String, String>> oneOf;
+    public boolean isVariant;
     public Map<String, Object> vendorExtensions = new HashMap<String, Object>();
     public boolean hasValidation; // true if pattern, maximum, etc are set (only used in the mustache template)
     public boolean isInherited;
@@ -459,6 +460,7 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
 
     public void setOneOf(List<Map<String, String>> oneOf) {
         this.oneOf = oneOf;
+        this.isVariant = ((oneOf != null) && !oneOf.isEmpty());
     }
 
     public Map<String, Object> getVendorExtensions() {
@@ -690,6 +692,7 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
         sb.append(", xmlNamespace='").append(xmlNamespace).append('\'');
         sb.append(", isXmlWrapped=").append(isXmlWrapped);
         sb.append(", oneOf=").append(oneOf);
+        sb.append(", isVariant=").append(isVariant);
         sb.append('}');
         return sb.toString();
     }
@@ -765,6 +768,7 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
                 Objects.equals(maximum, that.maximum) &&
                 Objects.equals(_enum, that._enum) &&
                 Objects.equals(oneOf, that.oneOf) &&
+                Objects.equals(isVariant, that.isVariant) &&
                 Objects.equals(allowableValues, that.allowableValues) &&
                 Objects.equals(items, that.items) &&
                 Objects.equals(mostInnerItems, that.mostInnerItems) &&
@@ -795,7 +799,7 @@ public class CodegenProperty implements Cloneable, IJsonSchemaValidationProperti
                 isSelfReference, isCircularReference, _enum, allowableValues, items, mostInnerItems,
                 vendorExtensions, hasValidation, isInherited, discriminatorValue, nameInCamelCase,
                 nameInSnakeCase, enumName, maxItems, minItems, isXmlAttribute, xmlPrefix, xmlName,
-                oneOf,
+                oneOf, isVariant,
                 xmlNamespace, isXmlWrapped);
     }
 }
