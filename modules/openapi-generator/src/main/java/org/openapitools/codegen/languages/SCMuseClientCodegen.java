@@ -186,6 +186,16 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
     public String toModelImport(String name) {
         if (importMapping.containsKey(name)) {
             return importMapping.get(name);
+        } else if (name.startsWith("boost::variant<")) {
+            String imports = "#include \"boost/variant.hpp\"\n";
+
+            int length = name.length();
+            String[] split = name.substring(15, length - 1).split(",");
+            for (String inner : split) {
+                imports = imports + toModelImport(inner) + "\n";
+            }
+
+            return imports;
         } else {
             return "#include \"" + name + ".h\"";
         }
@@ -202,6 +212,7 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
                 codegenModel.imports.add(newImp);
             }
         }
+
         return codegenModel;
     }
 
@@ -409,10 +420,19 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
         String type = null;
         if (typeMapping.containsKey(openAPIType)) {
             type = typeMapping.get(openAPIType);
-            if (languageSpecificPrimitives.contains(type))
-                return toModelName(type);
-        } else
+        } else if (openAPIType.startsWith("oneOf<")) {
+            type = "boost::variant<";
+            int length = openAPIType.length();
+            String[] split = openAPIType.substring(6, length - 1).split(",");
+            for (String inner : split) {
+                type = type + toModelName(inner) + ",";
+            }
+            type = type.substring(0, type.length() - 1);
+            type = type + ">";
+            return type;
+        } else {
             type = openAPIType;
+        }
         return toModelName(type);
     }
 }
