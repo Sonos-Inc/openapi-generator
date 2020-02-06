@@ -193,8 +193,6 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
 
     @Override
     public CodegenModel fromModel(String name, Schema model) {
-        name = cleanModelName(name);
-
         CodegenModel codegenModel = super.fromModel(name, model);
         Set<String> oldImports = codegenModel.imports;
         codegenModel.imports = new HashSet<String>();
@@ -207,20 +205,9 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
         return codegenModel;
     }
 
-    private String cleanModelName(String name) {
-        // Some model names parsed to Namespace_ModelName, this removes the '_'.
-        String[] split = name.split("_");
-
-        String output = name;
-        if (split.length > 1) {
-            output = split[0] + split[1];
-        }
-        return output;
-    }
-
     @Override
     public String toModelFilename(String name) {
-        return toModelName(cleanModelName(name));
+        return toModelName(name);
     }
 
     @Override
