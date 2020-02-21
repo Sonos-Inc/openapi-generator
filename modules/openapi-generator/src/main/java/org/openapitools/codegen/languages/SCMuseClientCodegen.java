@@ -140,9 +140,10 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
         String version = openAPI.getInfo().getVersion();
         String[] split = version.split("\\.");
         if (split.length > 0) {
-            majorVersion = split[0];
+            // The split[0] has the 'v' character, substring(1) skips over it
+            majorVersion = split[0].substring(1);
         }
-        additionalProperties.put("x-muse-version", "v" + majorVersion);
+        additionalProperties.put("x-muse-version", majorVersion);
     }
 
     @Override
