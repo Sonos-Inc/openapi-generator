@@ -238,12 +238,12 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
             op.vendorExtensions.put("x-muse-target", getTargetFromPath(op.path));
             op.vendorExtensions.put("x-muse-namespace", getNamespace(op.baseName));
             op.vendorExtensions.put("x-muse-commandName", getCommandName(op.operationIdOriginal));
-            op.vendorExtensions.put("x-muse-enum-preffix", op.baseName.toUpperCase());
+            op.vendorExtensions.put("x-muse-enum-prefix", op.baseName.toUpperCase(Locale.ROOT));
 
             op.responses.forEach(response -> {
                 if (response != null && response.dataType != null) {
                     if (!typesInserted.contains(response.dataType)) {
-                        response.vendorExtensions.put("x-muse-enum-entry", response.dataType.toUpperCase());
+                        response.vendorExtensions.put("x-muse-enum-entry", response.dataType.toUpperCase(Locale.ROOT));
                         response.vendorExtensions.put("x-muse-responseType", toCamelCase(response.dataType));
                         typesInserted.add(response.dataType);
                     }
