@@ -1,5 +1,6 @@
 package org.openapitools.codegen;
 
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.assertFalse;
@@ -27,6 +28,29 @@ import java.util.stream.Collectors;
 
 public class TestUtils {
 
+    /**
+     * Helper method for parsing specs as a generator would be presented at runtime (inline models resolved, flattened).
+     *
+     * @param specFilePath The path to the specification file
+     * @return A processed OpenAPI document
+     */
+    public static OpenAPI parseFlattenSpec(String specFilePath) {
+        OpenAPI openAPI = parseSpec(specFilePath);
+        InlineModelResolver inlineModelResolver = new InlineModelResolver();
+        inlineModelResolver.flatten(openAPI);
+        return openAPI;
+    }
+
+    /**
+     * Helper method for parsing specs into an intermediary OpenAPI structure for pre-processing.
+     *
+     * Use this method only for tests targeting processing helpers such as {@link org.openapitools.codegen.utils.ModelUtils}
+     * or {@link InlineModelResolver}. Using this for testing generators will mean you're not testing the OpenAPI document
+     * in a state the generator will be presented at runtime.
+     *
+     * @param specFilePath The path to the specification file
+     * @return A "raw" OpenAPI document
+     */
     public static OpenAPI parseSpec(String specFilePath) {
         return new OpenAPIParser().readLocation(specFilePath, null, new ParseOptions()).getOpenAPI();
     }
@@ -103,5 +127,28 @@ public class TestUtils {
         catch (ParseProblemException ex) {
             fail("Java parse problem: " + filename, ex);
         }
+    }
+
+
+    public static void assertFileContains(MockDefaultGenerator generator, String path, String... lines) {
+        final String generatedFile = generator.getFiles().get(path);
+        if (null == generatedFile) {
+            fail("File " + path +  " not found in " + generator.getFiles().keySet());
+        }
+        String file = linearize(generatedFile);
+        assertNotNull(file);
+        for (String line : lines)
+            assertTrue(file.contains(linearize(line)));
+    }
+
+    private static String linearize(String target) {
+        return target.replaceAll("\r?\n", "").replaceAll("\\s+", "\\s");
+    }
+
+    public static void assertFileNotContains(MockDefaultGenerator generator, String path, String... lines) {
+        String file = linearize(generator.getFiles().get(path));
+        assertNotNull(file);
+        for (String line : lines)
+            assertFalse(file.contains(linearize(line)));
     }
 }

@@ -6,9 +6,8 @@
 //
 
 import Foundation
-import Alamofire
 
-open class UserAPI {
+@objc open class UserAPI: NSObject {
     /**
      Create user
      
@@ -211,8 +210,8 @@ open class UserAPI {
 
         var url = URLComponents(string: URLString)
         url?.queryItems = APIHelper.mapValuesToQueryItems([
-            "username": username,
-            "password": password
+            "username": username.encodeToJSON(),
+            "password": password.encodeToJSON()
         ])
 
         let requestBuilder: RequestBuilder<String>.Type = PetstoreClientAPI.requestBuilderFactory.getBuilder()

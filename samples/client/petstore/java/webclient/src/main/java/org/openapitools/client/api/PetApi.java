@@ -57,12 +57,10 @@ public class PetApi {
      */
     public Mono<Void> addPet(Pet body) throws RestClientException {
         Object postBody = body;
-        
         // verify the required parameter 'body' is set
         if (body == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'body' when calling addPet");
         }
-        
         // create path and map variables
         final Map<String, Object> pathParams = new HashMap<String, Object>();
 
@@ -71,17 +69,17 @@ public class PetApi {
         final MultiValueMap<String, String> cookieParams = new LinkedMultiValueMap<String, String>();
         final MultiValueMap<String, Object> formParams = new LinkedMultiValueMap<String, Object>();
 
-        final String[] accepts = { };
-        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
-        final String[] contentTypes = { 
+        final String[] localVarAccepts = { };
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { 
             "application/json", "application/xml"
         };
-        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
-        String[] authNames = new String[] { "petstore_auth" };
+        String[] localVarAuthNames = new String[] { "petstore_auth" };
 
-        ParameterizedTypeReference<Void> returnType = new ParameterizedTypeReference<Void>() {};
-        return apiClient.invokeAPI("/pet", HttpMethod.POST, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, accept, contentType, authNames, returnType);
+        ParameterizedTypeReference<Void> localVarReturnType = new ParameterizedTypeReference<Void>() {};
+        return apiClient.invokeAPI("/pet", HttpMethod.POST, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
     }
     /**
      * Deletes a pet
@@ -94,14 +92,13 @@ public class PetApi {
      */
     public Mono<Void> deletePet(Long petId, String apiKey) throws RestClientException {
         Object postBody = null;
-        
         // verify the required parameter 'petId' is set
         if (petId == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'petId' when calling deletePet");
         }
-        
         // create path and map variables
         final Map<String, Object> pathParams = new HashMap<String, Object>();
+
         pathParams.put("petId", petId);
 
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
@@ -111,16 +108,15 @@ public class PetApi {
 
         if (apiKey != null)
         headerParams.add("api_key", apiClient.parameterToString(apiKey));
+        final String[] localVarAccepts = { };
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { };
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
-        final String[] accepts = { };
-        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
-        final String[] contentTypes = { };
-        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+        String[] localVarAuthNames = new String[] { "petstore_auth" };
 
-        String[] authNames = new String[] { "petstore_auth" };
-
-        ParameterizedTypeReference<Void> returnType = new ParameterizedTypeReference<Void>() {};
-        return apiClient.invokeAPI("/pet/{petId}", HttpMethod.DELETE, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, accept, contentType, authNames, returnType);
+        ParameterizedTypeReference<Void> localVarReturnType = new ParameterizedTypeReference<Void>() {};
+        return apiClient.invokeAPI("/pet/{petId}", HttpMethod.DELETE, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
     }
     /**
      * Finds Pets by status
@@ -133,12 +129,10 @@ public class PetApi {
      */
     public Flux<Pet> findPetsByStatus(List<String> status) throws RestClientException {
         Object postBody = null;
-        
         // verify the required parameter 'status' is set
         if (status == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'status' when calling findPetsByStatus");
         }
-        
         // create path and map variables
         final Map<String, Object> pathParams = new HashMap<String, Object>();
 
@@ -149,17 +143,17 @@ public class PetApi {
 
         queryParams.putAll(apiClient.parameterToMultiValueMap(ApiClient.CollectionFormat.valueOf("csv".toUpperCase(Locale.ROOT)), "status", status));
 
-        final String[] accepts = { 
+        final String[] localVarAccepts = { 
             "application/xml", "application/json"
         };
-        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
-        final String[] contentTypes = { };
-        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { };
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
-        String[] authNames = new String[] { "petstore_auth" };
+        String[] localVarAuthNames = new String[] { "petstore_auth" };
 
-        ParameterizedTypeReference<Pet> returnType = new ParameterizedTypeReference<Pet>() {};
-        return apiClient.invokeFluxAPI("/pet/findByStatus", HttpMethod.GET, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, accept, contentType, authNames, returnType);
+        ParameterizedTypeReference<Pet> localVarReturnType = new ParameterizedTypeReference<Pet>() {};
+        return apiClient.invokeFluxAPI("/pet/findByStatus", HttpMethod.GET, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
     }
     /**
      * Finds Pets by tags
@@ -172,12 +166,10 @@ public class PetApi {
      */
     public Flux<Pet> findPetsByTags(List<String> tags) throws RestClientException {
         Object postBody = null;
-        
         // verify the required parameter 'tags' is set
         if (tags == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'tags' when calling findPetsByTags");
         }
-        
         // create path and map variables
         final Map<String, Object> pathParams = new HashMap<String, Object>();
 
@@ -188,17 +180,17 @@ public class PetApi {
 
         queryParams.putAll(apiClient.parameterToMultiValueMap(ApiClient.CollectionFormat.valueOf("csv".toUpperCase(Locale.ROOT)), "tags", tags));
 
-        final String[] accepts = { 
+        final String[] localVarAccepts = { 
             "application/xml", "application/json"
         };
-        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
-        final String[] contentTypes = { };
-        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { };
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
-        String[] authNames = new String[] { "petstore_auth" };
+        String[] localVarAuthNames = new String[] { "petstore_auth" };
 
-        ParameterizedTypeReference<Pet> returnType = new ParameterizedTypeReference<Pet>() {};
-        return apiClient.invokeFluxAPI("/pet/findByTags", HttpMethod.GET, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, accept, contentType, authNames, returnType);
+        ParameterizedTypeReference<Pet> localVarReturnType = new ParameterizedTypeReference<Pet>() {};
+        return apiClient.invokeFluxAPI("/pet/findByTags", HttpMethod.GET, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
     }
     /**
      * Find pet by ID
@@ -212,14 +204,13 @@ public class PetApi {
      */
     public Mono<Pet> getPetById(Long petId) throws RestClientException {
         Object postBody = null;
-        
         // verify the required parameter 'petId' is set
         if (petId == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'petId' when calling getPetById");
         }
-        
         // create path and map variables
         final Map<String, Object> pathParams = new HashMap<String, Object>();
+
         pathParams.put("petId", petId);
 
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
@@ -227,17 +218,17 @@ public class PetApi {
         final MultiValueMap<String, String> cookieParams = new LinkedMultiValueMap<String, String>();
         final MultiValueMap<String, Object> formParams = new LinkedMultiValueMap<String, Object>();
 
-        final String[] accepts = { 
+        final String[] localVarAccepts = { 
             "application/xml", "application/json"
         };
-        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
-        final String[] contentTypes = { };
-        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { };
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
-        String[] authNames = new String[] { "api_key" };
+        String[] localVarAuthNames = new String[] { "api_key" };
 
-        ParameterizedTypeReference<Pet> returnType = new ParameterizedTypeReference<Pet>() {};
-        return apiClient.invokeAPI("/pet/{petId}", HttpMethod.GET, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, accept, contentType, authNames, returnType);
+        ParameterizedTypeReference<Pet> localVarReturnType = new ParameterizedTypeReference<Pet>() {};
+        return apiClient.invokeAPI("/pet/{petId}", HttpMethod.GET, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
     }
     /**
      * Update an existing pet
@@ -251,12 +242,10 @@ public class PetApi {
      */
     public Mono<Void> updatePet(Pet body) throws RestClientException {
         Object postBody = body;
-        
         // verify the required parameter 'body' is set
         if (body == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'body' when calling updatePet");
         }
-        
         // create path and map variables
         final Map<String, Object> pathParams = new HashMap<String, Object>();
 
@@ -265,17 +254,17 @@ public class PetApi {
         final MultiValueMap<String, String> cookieParams = new LinkedMultiValueMap<String, String>();
         final MultiValueMap<String, Object> formParams = new LinkedMultiValueMap<String, Object>();
 
-        final String[] accepts = { };
-        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
-        final String[] contentTypes = { 
+        final String[] localVarAccepts = { };
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { 
             "application/json", "application/xml"
         };
-        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
-        String[] authNames = new String[] { "petstore_auth" };
+        String[] localVarAuthNames = new String[] { "petstore_auth" };
 
-        ParameterizedTypeReference<Void> returnType = new ParameterizedTypeReference<Void>() {};
-        return apiClient.invokeAPI("/pet", HttpMethod.PUT, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, accept, contentType, authNames, returnType);
+        ParameterizedTypeReference<Void> localVarReturnType = new ParameterizedTypeReference<Void>() {};
+        return apiClient.invokeAPI("/pet", HttpMethod.PUT, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
     }
     /**
      * Updates a pet in the store with form data
@@ -288,14 +277,13 @@ public class PetApi {
      */
     public Mono<Void> updatePetWithForm(Long petId, String name, String status) throws RestClientException {
         Object postBody = null;
-        
         // verify the required parameter 'petId' is set
         if (petId == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'petId' when calling updatePetWithForm");
         }
-        
         // create path and map variables
         final Map<String, Object> pathParams = new HashMap<String, Object>();
+
         pathParams.put("petId", petId);
 
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
@@ -308,17 +296,17 @@ public class PetApi {
         if (status != null)
             formParams.add("status", status);
 
-        final String[] accepts = { };
-        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
-        final String[] contentTypes = { 
+        final String[] localVarAccepts = { };
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { 
             "application/x-www-form-urlencoded"
         };
-        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
-        String[] authNames = new String[] { "petstore_auth" };
+        String[] localVarAuthNames = new String[] { "petstore_auth" };
 
-        ParameterizedTypeReference<Void> returnType = new ParameterizedTypeReference<Void>() {};
-        return apiClient.invokeAPI("/pet/{petId}", HttpMethod.POST, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, accept, contentType, authNames, returnType);
+        ParameterizedTypeReference<Void> localVarReturnType = new ParameterizedTypeReference<Void>() {};
+        return apiClient.invokeAPI("/pet/{petId}", HttpMethod.POST, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
     }
     /**
      * uploads an image
@@ -332,14 +320,13 @@ public class PetApi {
      */
     public Mono<ModelApiResponse> uploadFile(Long petId, String additionalMetadata, File file) throws RestClientException {
         Object postBody = null;
-        
         // verify the required parameter 'petId' is set
         if (petId == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'petId' when calling uploadFile");
         }
-        
         // create path and map variables
         final Map<String, Object> pathParams = new HashMap<String, Object>();
+
         pathParams.put("petId", petId);
 
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
@@ -352,19 +339,19 @@ public class PetApi {
         if (file != null)
             formParams.add("file", new FileSystemResource(file));
 
-        final String[] accepts = { 
+        final String[] localVarAccepts = { 
             "application/json"
         };
-        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
-        final String[] contentTypes = { 
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { 
             "multipart/form-data"
         };
-        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
-        String[] authNames = new String[] { "petstore_auth" };
+        String[] localVarAuthNames = new String[] { "petstore_auth" };
 
-        ParameterizedTypeReference<ModelApiResponse> returnType = new ParameterizedTypeReference<ModelApiResponse>() {};
-        return apiClient.invokeAPI("/pet/{petId}/uploadImage", HttpMethod.POST, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, accept, contentType, authNames, returnType);
+        ParameterizedTypeReference<ModelApiResponse> localVarReturnType = new ParameterizedTypeReference<ModelApiResponse>() {};
+        return apiClient.invokeAPI("/pet/{petId}/uploadImage", HttpMethod.POST, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
     }
     /**
      * uploads an image (required)
@@ -378,19 +365,17 @@ public class PetApi {
      */
     public Mono<ModelApiResponse> uploadFileWithRequiredFile(Long petId, File requiredFile, String additionalMetadata) throws RestClientException {
         Object postBody = null;
-        
         // verify the required parameter 'petId' is set
         if (petId == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'petId' when calling uploadFileWithRequiredFile");
         }
-        
         // verify the required parameter 'requiredFile' is set
         if (requiredFile == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'requiredFile' when calling uploadFileWithRequiredFile");
         }
-        
         // create path and map variables
         final Map<String, Object> pathParams = new HashMap<String, Object>();
+
         pathParams.put("petId", petId);
 
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
@@ -403,18 +388,18 @@ public class PetApi {
         if (requiredFile != null)
             formParams.add("requiredFile", new FileSystemResource(requiredFile));
 
-        final String[] accepts = { 
+        final String[] localVarAccepts = { 
             "application/json"
         };
-        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
-        final String[] contentTypes = { 
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { 
             "multipart/form-data"
         };
-        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
-        String[] authNames = new String[] { "petstore_auth" };
+        String[] localVarAuthNames = new String[] { "petstore_auth" };
 
-        ParameterizedTypeReference<ModelApiResponse> returnType = new ParameterizedTypeReference<ModelApiResponse>() {};
-        return apiClient.invokeAPI("/fake/{petId}/uploadImageWithRequiredFile", HttpMethod.POST, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, accept, contentType, authNames, returnType);
+        ParameterizedTypeReference<ModelApiResponse> localVarReturnType = new ParameterizedTypeReference<ModelApiResponse>() {};
+        return apiClient.invokeAPI("/fake/{petId}/uploadImageWithRequiredFile", HttpMethod.POST, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
     }
 }

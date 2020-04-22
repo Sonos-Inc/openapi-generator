@@ -7,19 +7,27 @@
 
 import Foundation
 
-public struct TypeHolderExample: Codable {
+@objc public class TypeHolderExample: NSObject, Codable {
 
     public var stringItem: String
     public var numberItem: Double
-    public var floatItem: Float
     public var integerItem: Int
+    public var integerItemNum: NSNumber? {
+        get {
+            return integerItem as NSNumber?
+        }
+    }
     public var boolItem: Bool
+    public var boolItemNum: NSNumber? {
+        get {
+            return boolItem as NSNumber?
+        }
+    }
     public var arrayItem: [Int]
 
-    public init(stringItem: String, numberItem: Double, floatItem: Float, integerItem: Int, boolItem: Bool, arrayItem: [Int]) {
+    public init(stringItem: String, numberItem: Double, integerItem: Int, boolItem: Bool, arrayItem: [Int]) {
         self.stringItem = stringItem
         self.numberItem = numberItem
-        self.floatItem = floatItem
         self.integerItem = integerItem
         self.boolItem = boolItem
         self.arrayItem = arrayItem
@@ -28,7 +36,6 @@ public struct TypeHolderExample: Codable {
     public enum CodingKeys: String, CodingKey {
         case stringItem = "string_item"
         case numberItem = "number_item"
-        case floatItem = "float_item"
         case integerItem = "integer_item"
         case boolItem = "bool_item"
         case arrayItem = "array_item"

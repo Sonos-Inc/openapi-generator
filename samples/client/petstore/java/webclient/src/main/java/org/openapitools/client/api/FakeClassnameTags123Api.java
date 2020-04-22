@@ -55,12 +55,10 @@ public class FakeClassnameTags123Api {
      */
     public Mono<Client> testClassname(Client body) throws RestClientException {
         Object postBody = body;
-        
         // verify the required parameter 'body' is set
         if (body == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing the required parameter 'body' when calling testClassname");
         }
-        
         // create path and map variables
         final Map<String, Object> pathParams = new HashMap<String, Object>();
 
@@ -69,18 +67,18 @@ public class FakeClassnameTags123Api {
         final MultiValueMap<String, String> cookieParams = new LinkedMultiValueMap<String, String>();
         final MultiValueMap<String, Object> formParams = new LinkedMultiValueMap<String, Object>();
 
-        final String[] accepts = { 
+        final String[] localVarAccepts = { 
             "application/json"
         };
-        final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
-        final String[] contentTypes = { 
+        final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        final String[] localVarContentTypes = { 
             "application/json"
         };
-        final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
-        String[] authNames = new String[] { "api_key_query" };
+        String[] localVarAuthNames = new String[] { "api_key_query" };
 
-        ParameterizedTypeReference<Client> returnType = new ParameterizedTypeReference<Client>() {};
-        return apiClient.invokeAPI("/fake_classname_test", HttpMethod.PATCH, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, accept, contentType, authNames, returnType);
+        ParameterizedTypeReference<Client> localVarReturnType = new ParameterizedTypeReference<Client>() {};
+        return apiClient.invokeAPI("/fake_classname_test", HttpMethod.PATCH, pathParams, queryParams, postBody, headerParams, cookieParams, formParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
     }
 }

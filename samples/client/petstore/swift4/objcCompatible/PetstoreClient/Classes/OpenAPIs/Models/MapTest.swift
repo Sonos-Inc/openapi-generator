@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct MapTest: Codable {
+@objc public class MapTest: NSObject, Codable {
 
     public enum MapOfEnumString: String, Codable {
         case upper = "UPPER"
@@ -16,9 +16,9 @@ public struct MapTest: Codable {
     public var mapMapOfString: [String: [String: String]]?
     public var mapOfEnumString: [String: String]?
     public var directMap: [String: Bool]?
-    public var indirectMap: [String: Bool]?
+    public var indirectMap: StringBooleanMap?
 
-    public init(mapMapOfString: [String: [String: String]]?, mapOfEnumString: [String: String]?, directMap: [String: Bool]?, indirectMap: [String: Bool]?) {
+    public init(mapMapOfString: [String: [String: String]]?, mapOfEnumString: [String: String]?, directMap: [String: Bool]?, indirectMap: StringBooleanMap?) {
         self.mapMapOfString = mapMapOfString
         self.mapOfEnumString = mapOfEnumString
         self.directMap = directMap

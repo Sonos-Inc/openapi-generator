@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,10 +26,13 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
+import org.openapitools.codegen.meta.features.*;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +41,7 @@ import java.io.File;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static org.openapitools.codegen.utils.OnceLogger.once;
 import static org.openapitools.codegen.utils.StringUtils.*;
 
 public abstract class AbstractJavaCodegen extends DefaultCodegen implements CodegenConfig {
@@ -54,6 +58,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
     public static final String SUPPORT_JAVA6 = "supportJava6";
     public static final String DISABLE_HTML_ESCAPING = "disableHtmlEscaping";
     public static final String BOOLEAN_GETTER_PREFIX = "booleanGetterPrefix";
+    public static final String ADDITIONAL_MODEL_TYPE_ANNOTATIONS = "additionalModelTypeAnnotations";
 
     protected String dateLibrary = "threetenbp";
     protected boolean supportAsync = false;
@@ -91,9 +96,31 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
     protected String parentArtifactId = "";
     protected String parentVersion = "";
     protected boolean parentOverridden = false;
+    protected List<String> additionalModelTypeAnnotations = new LinkedList<>();
 
     public AbstractJavaCodegen() {
         super();
+
+        modifyFeatureSet(features -> features
+                .includeDocumentationFeatures(DocumentationFeature.Readme)
+                .wireFormatFeatures(EnumSet.of(WireFormatFeature.JSON, WireFormatFeature.XML))
+                .securityFeatures(EnumSet.noneOf(
+                        SecurityFeature.class
+                ))
+                .excludeGlobalFeatures(
+                        GlobalFeature.XMLStructureDefinitions,
+                        GlobalFeature.Callbacks,
+                        GlobalFeature.LinkObjects,
+                        GlobalFeature.ParameterStyling
+                )
+                .excludeSchemaSupportFeatures(
+                        SchemaSupportFeature.Polymorphism
+                )
+                .includeClientModificationFeatures(
+                        ClientModificationFeature.BasePath
+                )
+        );
+
         supportsInheritance = true;
         modelTemplateFiles.put("model.mustache", ".java");
         apiTemplateFiles.put("api.mustache", ".java");
@@ -184,6 +211,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
 
         cliOptions.add(CliOption.newBoolean(DISABLE_HTML_ESCAPING, "Disable HTML escaping of JSON strings when using gson (needed to avoid problems with byte[] fields)", disableHtmlEscaping));
         cliOptions.add(CliOption.newString(BOOLEAN_GETTER_PREFIX, "Set booleanGetterPrefix").defaultValue(this.getBooleanGetterPrefix()));
+        cliOptions.add(CliOption.newString(ADDITIONAL_MODEL_TYPE_ANNOTATIONS, "Additional annotations for model type(class level annotations)"));
 
         cliOptions.add(CliOption.newString(CodegenConstants.PARENT_GROUP_ID, CodegenConstants.PARENT_GROUP_ID_DESC));
         cliOptions.add(CliOption.newString(CodegenConstants.PARENT_ARTIFACT_ID, CodegenConstants.PARENT_ARTIFACT_ID_DESC));
@@ -220,6 +248,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             this.setBooleanGetterPrefix(additionalProperties.get(BOOLEAN_GETTER_PREFIX).toString());
         }
         additionalProperties.put(BOOLEAN_GETTER_PREFIX, booleanGetterPrefix);
+
+        if (additionalProperties.containsKey(ADDITIONAL_MODEL_TYPE_ANNOTATIONS)) {
+            String additionalAnnotationsList = additionalProperties.get(ADDITIONAL_MODEL_TYPE_ANNOTATIONS).toString();
+
+            this.setAdditionalModelTypeAnnotations(Arrays.asList(additionalAnnotationsList.split(";")));
+        }
 
         if (additionalProperties.containsKey(CodegenConstants.INVOKER_PACKAGE)) {
             this.setInvokerPackage((String) additionalProperties.get(CodegenConstants.INVOKER_PACKAGE));
@@ -488,6 +522,21 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         }
     }
 
+    @Override
+    public Map<String, Object> postProcessAllModels(Map<String, Object> objs) {
+        objs = super.postProcessAllModels(objs);
+        objs = super.updateAllModels(objs);
+
+        if (!additionalModelTypeAnnotations.isEmpty()) {
+            for (String modelName : objs.keySet()) {
+                Map<String, Object> models = (Map<String, Object>) objs.get(modelName);
+                models.put(ADDITIONAL_MODEL_TYPE_ANNOTATIONS, additionalModelTypeAnnotations);
+            }
+        }
+
+        return objs;
+    }
+
     private void sanitizeConfig() {
         // Sanitize any config options here. We also have to update the additionalProperties because
         // the whole additionalProperties object is injected into the main object passed to the mustache layer
@@ -689,15 +738,12 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
             Schema<?> items = getSchemaItems((ArraySchema) p);
-            return getSchemaType(p) + "<" + getTypeDeclaration(items) + ">";
-        } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = ModelUtils.getAdditionalProperties(p);
-            if (inner == null) {
-                LOGGER.error("`{}` (map property) does not have a proper inner type defined. Default to type:string", p.getName());
-                inner = new StringSchema().description("TODO default missing map inner type to string");
-                p.setAdditionalProperties(inner);
-            }
-            return getSchemaType(p) + "<String, " + getTypeDeclaration(inner) + ">";
+            return getSchemaType(p) + "<" + getTypeDeclaration(ModelUtils.unaliasSchema(this.openAPI, items)) + ">";
+        } else if (ModelUtils.isMapSchema(p) && !ModelUtils.isComposedSchema(p)) {
+            // Note: ModelUtils.isMapSchema(p) returns true when p is a composed schema that also defines
+            // additionalproperties: true
+            Schema<?> inner = getSchemaAdditionalProperties(p);
+            return getSchemaType(p) + "<String, " + getTypeDeclaration(ModelUtils.unaliasSchema(this.openAPI, inner)) + ">";
         }
         return super.getTypeDeclaration(p);
     }
@@ -711,9 +757,9 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
     }
 
     @Override
-    public String toDefaultValue(Schema p) {
-        p = ModelUtils.getReferencedSchema(this.openAPI, p);
-        if (ModelUtils.isArraySchema(p)) {
+    public String toDefaultValue(Schema schema) {
+        schema = ModelUtils.getReferencedSchema(this.openAPI, schema);
+        if (ModelUtils.isArraySchema(schema)) {
             final String pattern;
             if (fullJavaUtil) {
                 pattern = "new java.util.ArrayList<%s>()";
@@ -721,7 +767,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
                 pattern = "new ArrayList<%s>()";
             }
 
-            Schema<?> items = getSchemaItems((ArraySchema) p);
+            Schema<?> items = getSchemaItems((ArraySchema) schema);
 
             String typeDeclaration = getTypeDeclaration(items);
             Object java8obj = additionalProperties.get("java8");
@@ -733,18 +779,18 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             }
 
             return String.format(Locale.ROOT, pattern, typeDeclaration);
-        } else if (ModelUtils.isMapSchema(p)) {
+        } else if (ModelUtils.isMapSchema(schema)) {
             final String pattern;
             if (fullJavaUtil) {
                 pattern = "new java.util.HashMap<%s>()";
             } else {
                 pattern = "new HashMap<%s>()";
             }
-            if (ModelUtils.getAdditionalProperties(p) == null) {
+            if (ModelUtils.getAdditionalProperties(schema) == null) {
                 return null;
             }
 
-            String typeDeclaration = String.format(Locale.ROOT, "String, %s", getTypeDeclaration(ModelUtils.getAdditionalProperties(p)));
+            String typeDeclaration = String.format(Locale.ROOT, "String, %s", getTypeDeclaration(ModelUtils.getAdditionalProperties(schema)));
             Object java8obj = additionalProperties.get("java8");
             if (java8obj != null) {
                 Boolean java8 = Boolean.valueOf(java8obj.toString());
@@ -754,38 +800,46 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
             }
 
             return String.format(Locale.ROOT, pattern, typeDeclaration);
-        } else if (ModelUtils.isIntegerSchema(p)) {
-            if (p.getDefault() != null) {
-                if (SchemaTypeUtil.INTEGER64_FORMAT.equals(p.getFormat())) {
-                    return p.getDefault().toString() + "l";
+        } else if (ModelUtils.isIntegerSchema(schema)) {
+            if (schema.getDefault() != null) {
+                if (SchemaTypeUtil.INTEGER64_FORMAT.equals(schema.getFormat())) {
+                    return schema.getDefault().toString() + "l";
                 } else {
-                    return p.getDefault().toString();
+                    return schema.getDefault().toString();
                 }
             }
             return null;
-        } else if (ModelUtils.isNumberSchema(p)) {
-            if (p.getDefault() != null) {
-                if (SchemaTypeUtil.FLOAT_FORMAT.equals(p.getFormat())) {
-                    return p.getDefault().toString() + "f";
+        } else if (ModelUtils.isNumberSchema(schema)) {
+            if (schema.getDefault() != null) {
+                if (SchemaTypeUtil.FLOAT_FORMAT.equals(schema.getFormat())) {
+                    return schema.getDefault().toString() + "f";
                 } else {
-                    return p.getDefault().toString() + "d";
+                    return schema.getDefault().toString() + "d";
                 }
             }
             return null;
-        } else if (ModelUtils.isBooleanSchema(p)) {
-            if (p.getDefault() != null) {
-                return p.getDefault().toString();
+        } else if (ModelUtils.isBooleanSchema(schema)) {
+            if (schema.getDefault() != null) {
+                return schema.getDefault().toString();
             }
             return null;
-        } else if (ModelUtils.isURISchema(p)) {
-            if (p.getDefault() != null) {
-                return "URI.create(\"" + escapeText((String) p.getDefault()) + "\")";
+        } else if (ModelUtils.isURISchema(schema)) {
+            if (schema.getDefault() != null) {
+                return "URI.create(\"" + escapeText((String) schema.getDefault()) + "\")";
             }
             return null;
-        } else if (ModelUtils.isStringSchema(p)) {
-            if (p.getDefault() != null) {
-                String _default = (String) p.getDefault();
-                if (p.getEnum() == null) {
+        } else if (ModelUtils.isStringSchema(schema)) {
+            if (schema.getDefault() != null) {
+                String _default;
+                if (schema.getDefault() instanceof Date){
+                    Date date = (Date) schema.getDefault();
+                    LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    return String.format(Locale.ROOT, localDate.toString(), "");
+                }
+                else{
+                    _default = (String) schema.getDefault();
+                }
+                if (schema.getEnum() == null) {
                     return "\"" + escapeText(_default) + "\"";
                 } else {
                     // convert to enum var name later in postProcessModels
@@ -793,14 +847,14 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
                 }
             }
             return null;
-        } else if (ModelUtils.isObjectSchema(p)) {
-            if (p.getDefault() != null) {
-                return super.toDefaultValue(p);
+        } else if (ModelUtils.isObjectSchema(schema)) {
+            if (schema.getDefault() != null) {
+                return super.toDefaultValue(schema);
             }
             return null;
         }
 
-        return super.toDefaultValue(p);
+        return super.toDefaultValue(schema);
     }
 
     @Override
@@ -953,8 +1007,13 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
         if (serializeBigDecimalAsString) {
             if (property.baseType.equals("BigDecimal")) {
+
+                // TODO: 5.0: Remove the camelCased vendorExtension below and ensure templates use the newer property naming.
+                once(LOGGER).warn("4.3.0 has deprecated the use of vendor extensions which don't follow lower-kebab casing standards with x- prefix.");
+
                 // we serialize BigDecimal as `string` to avoid precision loss
-                property.vendorExtensions.put("extraAnnotation", "@JsonSerialize(using = ToStringSerializer.class)");
+                property.vendorExtensions.put("extraAnnotation", "@JsonSerialize(using = ToStringSerializer.class)");  // TODO: 5.0 Remove
+                property.vendorExtensions.put("x-extra-annotation", "@JsonSerialize(using = ToStringSerializer.class)");
 
                 // this requires some more imports to be added for this model...
                 model.imports.add("ToStringSerializer");
@@ -1016,6 +1075,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
 
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
+        super.preprocessOpenAPI(openAPI);
         if (openAPI == null) {
             return;
         }
@@ -1440,7 +1500,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
      * @return SNAPSHOT version
      */
     private String buildSnapshotVersion(String version) {
-        if(version.endsWith("-SNAPSHOT")) {
+        if (version.endsWith("-SNAPSHOT")) {
             return version;
         }
         return version + "-SNAPSHOT";
@@ -1545,6 +1605,10 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
 
     public void setParentOverridden(final boolean parentOverridden) {
         this.parentOverridden = parentOverridden;
+    }
+
+    public void setAdditionalModelTypeAnnotations(final List<String> additionalModelTypeAnnotations) {
+        this.additionalModelTypeAnnotations = additionalModelTypeAnnotations;
     }
 
     @Override
