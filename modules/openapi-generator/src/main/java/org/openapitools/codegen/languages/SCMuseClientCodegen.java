@@ -243,8 +243,22 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
             op.responses.forEach(response -> {
                 if (response != null && response.dataType != null) {
                     if (!typesInserted.contains(response.dataType)) {
-                        response.vendorExtensions.put("x-muse-enum-entry", response.dataType.toUpperCase(Locale.ROOT));
-                        response.vendorExtensions.put("x-muse-responseType", toCamelCase(response.dataType));
+                        if (response.dataType.contains("boost::variant")) {
+                            // '15' is length of "boost::variant<"
+                            // split off the ending ">" as well.
+                            String internalTypesStr = response.dataType.substring(15, response.dataType.length() - 1);
+                            String[] internalTypesArr = internalTypesStr.split(",");
+                            for (String dataType: internalTypesArr) {
+                                if (!typesInserted.contains(dataType)) {
+                                    response.vendorExtensions.put("x-muse-enum-entry", dataType.toUpperCase(Locale.ROOT));
+                                    response.vendorExtensions.put("x-muse-responseType", toCamelCase(dataType));
+                                    typesInserted.add(dataType);
+                                }
+                            }
+                        } else {
+                            response.vendorExtensions.put("x-muse-enum-entry", response.dataType.toUpperCase(Locale.ROOT));
+                            response.vendorExtensions.put("x-muse-responseType", toCamelCase(response.dataType));
+                        }
                         typesInserted.add(response.dataType);
                     }
                 }
