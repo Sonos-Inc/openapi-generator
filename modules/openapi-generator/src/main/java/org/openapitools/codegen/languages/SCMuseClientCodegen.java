@@ -272,10 +272,14 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
         String[] split = path.split("/");
 
         if (split.length >= 2 && targets.contains(split[1])) {
-            return split[1];
+            return toTitleCase(split[1].substring(0, split[1].length() - 1));
         }
 
-        return "none";
+        return null;
+    }
+
+    String toTitleCase(String s) {
+        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
     String toCamelCase(String s) {
