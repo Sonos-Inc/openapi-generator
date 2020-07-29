@@ -184,7 +184,7 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
     }
 
     @Override
-    public String toModelImport(String name) {
+    public String toModelImport(String name, boolean isApi) {
         if (importMapping.containsKey(name)) {
             return importMapping.get(name);
         } else if (name.startsWith("boost::variant<")) {
@@ -193,12 +193,16 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
             int length = name.length();
             String[] split = name.substring(15, length - 1).split(",");
             for (String inner : split) {
-                imports = imports + toModelImport(inner) + "\n";
+                imports = imports + toModelImport(inner, isApi) + "\n";
             }
 
             return imports;
         } else {
-            return "#include \"" + name + ".h\"";
+            if (isApi) {
+                return "#include \"model/" + name + ".h\"";
+            } else {
+                return "#include \"" + name + ".h\"";
+            }
         }
     }
 
@@ -208,7 +212,7 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
         Set<String> oldImports = codegenModel.imports;
         codegenModel.imports = new HashSet<String>();
         for (String imp : oldImports) {
-            String newImp = toModelImport(imp);
+            String newImp = toModelImport(imp, false);
             if (!newImp.isEmpty()) {
                 codegenModel.imports.add(newImp);
             }

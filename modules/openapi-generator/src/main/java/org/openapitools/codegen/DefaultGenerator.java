@@ -1245,7 +1245,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
             Map<String, String> im = new LinkedHashMap<>();
             String mapping = config.importMapping().get(nextImport);
             if (mapping == null) {
-                mapping = config.toModelImport(nextImport);
+                mapping = config.toModelImport(nextImport, true);
             }
 
             if (mapping != null && !mappingSet.contains(mapping)) { // ensure import (mapping) is unique
@@ -1289,7 +1289,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
             CodegenModel cm = config.fromModel(key, schema);
             Map<String, Object> mo = new HashMap<>();
             mo.put("model", cm);
-            mo.put("importPath", config.toModelImport(cm.classname));
+            mo.put("importPath", config.toModelImport(cm.classname, false));
             models.add(mo);
 
             cm.removeSelfReferenceImport();
@@ -1301,7 +1301,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
         for (String nextImport : allImports) {
             String mapping = config.importMapping().get(nextImport);
             if (mapping == null) {
-                mapping = config.toModelImport(nextImport);
+                mapping = config.toModelImport(nextImport, false);
             }
             if (mapping != null && !config.defaultIncludes().contains(mapping)) {
                 importSet.add(mapping);
