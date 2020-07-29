@@ -174,6 +174,10 @@ public interface CodegenConfig {
 
     String toModelImport(String name);
 
+    default String toModelImport(String name, boolean isApi) {
+        return toModelImport(name);
+    }
+
     String toApiImport(String name);
 
     void addOperationToGroup(String tag, String resourcePath, Operation operation, CodegenOperation co, Map<String, List<CodegenOperation>> operations);
