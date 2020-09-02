@@ -239,10 +239,19 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
 
         HashSet<String> typesInserted = new HashSet<String>();
         opList.forEach(op -> {
-            op.vendorExtensions.put("x-muse-target", getTargetFromPath(op.path));
+
             op.vendorExtensions.put("x-muse-namespace", getNamespace(op.baseName));
             op.vendorExtensions.put("x-muse-commandName", getCommandName(op.operationIdOriginal));
             op.vendorExtensions.put("x-muse-enum-prefix", op.baseName.toUpperCase(Locale.ROOT));
+
+            op.pathParams.forEach(parameter -> {
+                if (isTargetParameter(parameter)) {
+                    // Only set the x-muse-target for the first possible target parameter
+                    if (op.vendorExtensions.get("x-muse-target") == null) {
+                        op.vendorExtensions.put("x-muse-target", getTargetFromParameter(parameter.baseName));
+                    }
+                }
+            });
 
             op.responses.forEach(response -> {
                 if (response != null && response.dataType != null) {
@@ -272,14 +281,22 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
         return objs;
     }
 
-    public String getTargetFromPath(String path) {
-        String[] split = path.split("/");
-
-        if (split.length >= 2 && targets.contains(split[1])) {
-            return toTitleCase(split[1].substring(0, split[1].length() - 1));
+    protected String getTargetFromParameter(String param) {
+        if (param.endsWith("Id")) {
+            // Get possibleTarget namespace by stripping Id, and adding an 's'
+            String possibleTarget = param.substring(0, param.lastIndexOf("Id")).concat("s");
+            if (targets.contains(possibleTarget)) {
+                // This parameter seems to be a target ID parameter, lets mark it...
+                return possibleTarget;
+            }
         }
 
         return null;
+    }
+
+    protected boolean isTargetParameter(CodegenParameter parameter) {
+        Boolean isTarget = (Boolean)parameter.vendorExtensions.get("x-muse-target-parameter");
+        return isTarget;
     }
 
     String toTitleCase(String s) {
@@ -427,6 +444,18 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
             if (split.length >= 2) {
                 parameter.paramName = toCamelCase(split[1]);
             }
+        }
+
+        if (parameter.isPathParam) {
+            // Need to pull out the TargetID ones and add to vendor data
+            boolean isTarget = false;
+            String possibleTarget = getTargetFromParameter(parameter.baseName);
+            if (possibleTarget != null) {
+                // This parameter seems to be a target ID parameter, lets mark it...
+                isTarget = true;
+            }
+
+            parameter.vendorExtensions.put("x-muse-target-parameter", isTarget);
         }
     }
 
