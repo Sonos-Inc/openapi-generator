@@ -98,10 +98,10 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
         importMapping.put("Object", "#include \"MuseObject.h\"");
 
         targets = new HashSet<String>();
-        targets.add("households");
-        targets.add("players");
-        targets.add("groups");
-        targets.add("sessions");
+        targets.add("household");
+        targets.add("player");
+        targets.add("group");
+        targets.add("session");
     }
 
     /**
@@ -284,7 +284,7 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
     protected String getTargetFromParameter(String param) {
         if (param.endsWith("Id")) {
             // Get possibleTarget namespace by stripping Id, and adding an 's'
-            String possibleTarget = param.substring(0, param.lastIndexOf("Id")).concat("s");
+            String possibleTarget = param.substring(0, param.lastIndexOf("Id"));
             if (targets.contains(possibleTarget)) {
                 // This parameter seems to be a target ID parameter, lets mark it...
                 return possibleTarget;
