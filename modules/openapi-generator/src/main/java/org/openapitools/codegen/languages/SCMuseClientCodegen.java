@@ -283,7 +283,6 @@ public class SCMuseClientCodegen extends AbstractCppCodegen {
 
     protected String getTargetFromParameter(String param) {
         if (param.endsWith("Id")) {
-            // Get possibleTarget namespace by stripping Id, and adding an 's'
             String possibleTarget = param.substring(0, param.lastIndexOf("Id"));
             if (targets.contains(possibleTarget)) {
                 // This parameter seems to be a target ID parameter, lets mark it...
